@@ -17,10 +17,10 @@ EXCEL_FILE = "foote_changed.xlsx"
 
 def get_db_connection():
     return mysql.connector.connect(
-        host="localhost",
-        user="root",
-        password="REMOVED",
-        database="projectus"
+        host=
+        user=
+        password=
+        database=
     )
 
 
