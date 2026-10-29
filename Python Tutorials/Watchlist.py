@@ -22,7 +22,7 @@ class Watchlist:
             print("Choose a already existing series")
 
     def fav_show(self,name):
-
+        pass
 
 
 

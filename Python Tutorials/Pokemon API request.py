@@ -1,6 +1,5 @@
 #REQUEST API FROM POKEMON
 
-#im tryna get pansear from pokemon black and white
 
 import requests
 
