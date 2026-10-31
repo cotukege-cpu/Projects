@@ -7,6 +7,8 @@ from pathlib import Path
 from dotenv import load_dotenv
 import tkinter as tk
 from tkinter import messagebox , scrolledtext , ttk
+from datetime import datetime
+from zoneinfo import ZoneInfo
 
 
 
@@ -39,7 +41,7 @@ def safe_val(val):
     if pd.isna(val) or val is None:
         return None
     if hasattr(val,"item"):
-        return val.item()
+        return val.item()      
     return val
 
 
@@ -47,8 +49,41 @@ def safe_val(val):
 
 
 
+#-----UK CLOCK---------
+
+def update_uk_clock(clock_label):
+    try:
+        uk_time=datetime.now(ZoneInfo("Europe/London"))
+        time_string= uk_time.strftime("%H:%M:%S - %d %B %Y")
+        clock_label.config(text = f"UK TIME: {time_string}")
+    except Exception:
+        pass
+    clock_label.after(1000,lambda: update_uk_clock(clock_label))
+
+
+
+
+
+
+#------DATABASE GENERATOR AUTOMATED----- (generates the database tables for anybody)
+def initialize_database(cursor):
+    #teams
+    cursor.execute("""CREATE TABLE IF NOT EXISTS teams (team_id INT PRIMARY KEY,team_name VARCHAR(100));""")
+
+    #matches
+    cursor.execute("""CREATE TABLE IF NOT EXISTS matches(match_id INT PRIMARY KEY,match_date DATETIME,home_team_id INT ,away_team_id INT,home_team_score INT, away_team_score INT,match_status VARCHAR(50),odds FLOAT);""")
+
+    #scorers
+    cursor.execute("""CREATE TABLE IF NOT EXISTS scorers(player_id INT PRIMARY KEY,player_name VARCHAR(50),team_id INT,matches_played INT,goals INT);""")
+
+    #standings
+    cursor.execute("""CREATE TABLE IF NOT EXISTS standings(team_position INT,team_id INT,matches_played INT,points INT,goal_difference INT,goals_against VARCHAR(100),PRIMARY KEY(team_position),CONSTRAINT fk_standings_team_id FOREIGN KEY(team_id) REFERENCES teams(team_id));""")
+
+
+
+
+
 def Football_matchday_pipeline(log_widget, tree_widget):
-    
     
     
     def log_message(message):
@@ -287,6 +322,8 @@ def Football_matchday_pipeline(log_widget, tree_widget):
 
         cursor = db_connection.cursor()
 
+        initialize_database(cursor)
+
 
 
         #TEAMS
@@ -383,8 +420,7 @@ def Football_matchday_pipeline(log_widget, tree_widget):
 
         cursor.close()
         db_connection.close()
-        log_message("All the Data has been uploaded to MySQL successfully")
-        messagebox.showinfo("Premiere League Matchday Pipeline Successfully Ran and MySQL table has been updated")
+        
 
     except Exception as e:
         log_message(f"Error : {e}")
@@ -427,6 +463,15 @@ log_label.pack(fill=tk.X, pady=(0, 5))
 
 log_text = scrolledtext.ScrolledText(log_frame,wrap=tk.WORD,font=("Consolas", 10),bg="#ffffff",fg="#0f172a",insertbackground="black",)
 log_text.pack(fill=tk.BOTH, expand=True)
+
+
+
+#----UK CLOCK---------
+uk_clock_label = tk.Label(log_frame, text="UK Time: Loading...", font=("Consolas", 14, "bold"), bg=dark_blue, fg="#ffffff", anchor="w")
+uk_clock_label.pack(fill=tk.X, pady=(5, 0))
+update_uk_clock(uk_clock_label)
+
+
 
 
 #---- Right fram----
